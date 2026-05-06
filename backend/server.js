@@ -39,8 +39,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected Successfully'))
+const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dentai';
+mongoose.connect(mongoUri)
+  .then(() => console.log('✅ MongoDB Connected Successfully ->', mongoUri))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err.message));
 
 // Routes
