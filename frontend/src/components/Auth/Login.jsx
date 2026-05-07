@@ -15,7 +15,8 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', { email, password })
       const { token, user } = res.data
-      if (remember) localStorage.setItem('token', token)
+      // Always store token for authentication
+      localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(user))
       navigate('/')
     } catch (err) {
