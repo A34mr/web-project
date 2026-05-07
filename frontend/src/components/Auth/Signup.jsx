@@ -72,7 +72,7 @@ export default function Signup() {
     
     setSubmitting(true)
     try {
-      await api.post('/auth/register', registerData)
+      await api.post('/api/auth/register', registerData)
       alert('Account created — please log in')
       navigate('/login')
     } catch (err) {
