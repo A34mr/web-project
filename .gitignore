@@ -2,10 +2,15 @@
 # Dependencies
 node_modules/
 
+# Build outputs
+dist/
+build/
+*.js.map
+
 # Environment variables
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editor/IDE files
 .vscode/
@@ -17,6 +22,11 @@ node_modules/
 # Logs
 *.log
 
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
+
 # Python specific
 __pycache__/
 *.pyc
@@ -24,17 +34,13 @@ __pycache__/
 *.pyd
 .Python
 *.so
-.coverage
-coverage/
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+.coverage.*
+.python-version
 
-# Build outputs
-dist/
-build/
-*.egg-info/
-.eggs/
+# Node.js specific
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # OS generated files
 .DS_Store
