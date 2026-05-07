@@ -1,37 +1,39 @@
+// src/services/api.js
+// Axios instance configured with environment variable for backend URL.
+// Vite exposes env variables prefixed with VITE_ to the client side.
+
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// The base URL for the backend API. Define VITE_BACKEND_URL in .env files.
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
+  // You can set common headers here, e.g., JSON content type.
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
+  // Enable sending cookies for auth if backend uses sessions.
+  withCredentials: true,
 });
 
-// Request interceptor to add auth token
+// Optional: interceptors for request/response handling (e.g., auth token)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Example: attach auth token from localStorage if present
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
+    // Centralized error handling can be added here.
     return Promise.reject(error);
   }
 );
