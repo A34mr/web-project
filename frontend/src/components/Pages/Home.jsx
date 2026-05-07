@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const NAV_LINKS = ["Home", "Services", "About", "Contact"];
 
@@ -56,6 +57,7 @@ const HOURS = [
 ];
 
 export default function DentalClinicHome() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -109,21 +111,26 @@ export default function DentalClinicHome() {
 
           {/* Auth Buttons */}
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <button style={{
-              background: "none", border: "none", color: "#4a5568",
-              fontSize: 14, cursor: "pointer", padding: "8px 12px", borderRadius: 8,
-              display: "flex", alignItems: "center", gap: 6
-            }}>
+            <button 
+              onClick={() => navigate('/login')}
+              style={{
+                background: "none", border: "none", color: "#4a5568",
+                fontSize: 14, cursor: "pointer", padding: "8px 12px", borderRadius: 8,
+                display: "flex", alignItems: "center", gap: 6
+              }}
+            >
               👤 Login
             </button>
-            <button style={{
-              background: "linear-gradient(135deg, #1a73e8, #0d47a1)",
-              border: "none", color: "#fff", fontSize: 14, fontWeight: 600,
-              cursor: "pointer", padding: "9px 20px", borderRadius: 8,
-              display: "flex", alignItems: "center", gap: 6,
-              boxShadow: "0 2px 8px rgba(26,115,232,0.35)",
-              transition: "transform 0.15s, box-shadow 0.15s"
-            }}
+            <button 
+              onClick={() => navigate('/signup')}
+              style={{
+                background: "linear-gradient(135deg, #1a73e8, #0d47a1)",
+                border: "none", color: "#fff", fontSize: 14, fontWeight: 600,
+                cursor: "pointer", padding: "9px 20px", borderRadius: 8,
+                display: "flex", alignItems: "center", gap: 6,
+                boxShadow: "0 2px 8px rgba(26,115,232,0.35)",
+                transition: "transform 0.15s, box-shadow 0.15s"
+              }}
               onMouseEnter={e => { e.target.style.transform = "translateY(-1px)"; e.target.style.boxShadow = "0 4px 16px rgba(26,115,232,0.45)"; }}
               onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = "0 2px 8px rgba(26,115,232,0.35)"; }}
             >
@@ -166,26 +173,30 @@ export default function DentalClinicHome() {
 
             {/* CTA Buttons */}
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <button style={{
-                background: "#fff", color: "#1565c0", border: "none",
-                padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                transition: "transform 0.15s, box-shadow 0.15s"
-              }}
+              <button 
+                onClick={() => navigate('/login')}
+                style={{
+                  background: "#fff", color: "#1565c0", border: "none",
+                  padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  transition: "transform 0.15s, box-shadow 0.15s"
+                }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
                 onMouseLeave={e => e.currentTarget.style.transform = ""}
               >
                 📅 Book Appointment
               </button>
-              <button style={{
-                background: "rgba(255,255,255,0.15)", color: "#fff",
-                border: "2px solid rgba(255,255,255,0.6)",
-                padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 600,
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-                backdropFilter: "blur(4px)",
-                transition: "background 0.2s"
-              }}
+              <button 
+                onClick={() => navigate('/contact')}
+                style={{
+                  background: "rgba(255,255,255,0.15)", color: "#fff",
+                  border: "2px solid rgba(255,255,255,0.6)",
+                  padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 600,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                  backdropFilter: "blur(4px)",
+                  transition: "background 0.2s"
+                }}
                 onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                 onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
               >
@@ -354,13 +365,15 @@ export default function DentalClinicHome() {
                 </div>
               ))}
 
-              <button style={{
-                background: "#fff", color: "#1565c0", border: "none",
-                padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginTop: 8,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                transition: "transform 0.15s"
-              }}
+              <button 
+                onClick={() => navigate('/login')}
+                style={{
+                  background: "#fff", color: "#1565c0", border: "none",
+                  padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginTop: 8,
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  transition: "transform 0.15s"
+                }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
                 onMouseLeave={e => e.currentTarget.style.transform = ""}
               >
