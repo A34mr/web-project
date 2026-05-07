@@ -83,11 +83,19 @@ export default function SignUp() {
     
     setLoading(true);
     try {
-      // Prepare registration data based on account type
+      // Split fullName into firstName and lastName
+      const nameParts = (form.fullName || "").trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+      
+      // Prepare registration data based on account type - only send fields backend expects
       const userData = {
-        ...form,
+        email: form.email,
+        password: form.password,
+        firstName,
+        lastName,
         role: type,
-        workingDays: type === "doctor" ? selectedDays : undefined,
+        phone: form.phone
       };
       
       await register(userData);

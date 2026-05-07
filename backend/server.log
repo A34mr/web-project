@@ -1,0 +1,4 @@
+◇ injected env (5) from .env // tip: ⌘ override existing { override: true }
+🚀 Dent AI Server running on port 5000
+📡 Environment: development
+✅ MongoDB Connected Successfully -> mongodb://amrhamdys54321:OLinxwgGqQ78PPmb@ac-aty3wda-shard-00-00.ktyrrqv.mongodb.net:27017,ac-aty3wda-shard-00-01.ktyrrqv.mongodb.net:27017,ac-aty3wda-shard-00-02.ktyrrqv.mongodb.net:27017/medical_center?ssl=true&authSource=admin&retryWrites=true&w=majority
