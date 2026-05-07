@@ -26,7 +26,7 @@ const SERVICES = [
     title: "Teeth Whitening",
     desc: "Professional whitening treatments that brighten your smile safely and effectively in just one visit.",
     points: ["Fast results", "Safe procedure", "Brighter smile"],
-    img: "https://images.unsplash.com/photo-1588776814546-1ffedbe8eba5?w=400&q=80",
+    img: "https://images.unsplash.com/photo-1571773428335-9e5dc0a7f8bd?w=400&q=80",
   },
   {
     title: "Orthodontics",

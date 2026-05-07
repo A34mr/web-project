@@ -15,8 +15,6 @@ build/
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # Logs
 *.log
@@ -29,9 +27,10 @@ __pycache__/
 
 # Temporary files
 *.tmp
-*.temp
+*.swp
+*.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 
@@ -40,8 +39,18 @@ coverage/
 htmlcov/
 .coverage
 
-# Cache
+# Cache directories
 .mypy_cache/
 .pytest_cache/
-.cache/
+.nyc_output/
+coverage/lcov-report/
+
+# Distribution / packaging
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
 ```

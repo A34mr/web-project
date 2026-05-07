@@ -30,14 +30,27 @@ const io = socketIo(server, {
 // Store io instance for use in routes
 app.set('io', io);
 
-// Middleware
+// Middleware - Add CORS headers to ALL responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cross-Origin-Opener-Policy, Cross-Origin-Embedder-Policy');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:5173',
       'http://localhost:3000',
       'http://localhost:5173',
-      'null' // Allow requests from file:// or about:blank
+      'null' // Allow requests with no origin (like mobile apps or curl requests)
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
