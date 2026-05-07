@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from "react";
-import EditProfileModal from "./EditProfileModal";
+// import EditProfileModal from "./EditProfileModal"; // Temporarily disabled - file missing
 const Icon = {
   back: (props) => (
     <svg viewBox="0 0 24 24" width="18" height="18" {...props}>
