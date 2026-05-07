@@ -21,36 +21,27 @@ build/
 # Logs
 *.log
 
-# Temp files
-*.tmp
-
-# Python
+# Python (if applicable)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Compiled
-*.o
-*.obj
-*.so
-*.a
-*.dll
-*.exe
-*.out
+# Temporary files
+*.tmp
+*.temp
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Caches
+# Cache
 .mypy_cache/
 .pytest_cache/
-.gradle/
-target/
-
-# System
-.DS_Store
-Thumbs.db
+.cache/
 ```
