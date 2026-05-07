@@ -1,0 +1,37 @@
+/* Minimal styles to approximate the screenshots */
+body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+.app-header { display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:#fff; border-bottom:1px solid #eef3f9 }
+.app-header a { margin-left:12px; color:#1370d0; text-decoration:none }
+.app-main { padding:32px }
+
+.auth-page { display:flex; justify-content:center; align-items:flex-start; padding:40px }
+.auth-card { width:760px; max-width:100%; background: linear-gradient(180deg,#f7fbff,#fff); border-radius:12px; padding:28px; box-shadow:0 10px 30px rgba(15,46,78,0.08) }
+.auth-card.wide { max-width:920px }
+.auth-card h2 { margin:0 0 6px }
+.muted { color:#6b7a8a }
+
+.auth-form, .detail-form { display:flex; flex-direction:column; gap:10px; margin-top:12px }
+label { font-size:13px; color:#2c3e50 }
+input, select, textarea { padding:10px 12px; border:1px solid #e1e8f0; border-radius:8px; background:#fff }
+.row.between { display:flex; justify-content:space-between; align-items:center }
+.checkbox input { margin-right:8px }
+.primary { background: linear-gradient(90deg,#1370d0,#2ea0ff); color:#fff; border:none; padding:12px 16px; border-radius:12px; cursor:pointer }
+.link { background:none; border:none; color:#1370d0; cursor:pointer; padding:6px 0 }
+.error { color:#b00020; padding:8px; background:#fff5f5; border-radius:6px }
+
+.acct-list { display:flex; flex-direction:column; gap:12px; margin-top:12px }
+.acct-option { display:flex; gap:12px; padding:16px; border-radius:10px; border:1px solid #e6eef8; cursor:pointer; align-items:center }
+.acct-option.active { box-shadow:0 6px 18px rgba(19,112,208,0.12); border-color:#9ed0ff }
+.acct-option .icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:#f0f7ff; border-radius:8px }
+.acct-option .label { font-weight:600 }
+.small { font-size:12px }
+
+.days { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 }
+.pill { padding:8px 12px; border-radius:20px; border:1px solid #dfeaf8; background:#f7fbff; cursor:pointer }
+.pill.active { background:linear-gradient(90deg,#1370d0,#2ea0ff); color:#fff; border:none }
+
+.auth-login .auth-card { width:920px; display:flex; gap:16px }
+.auth-login .auth-card .left { flex:1; padding:20px }
+.auth-login .auth-card .right { flex:1; padding:20px }
+
+.app-shell { min-height:100vh; background:#f2f8ff }
