@@ -1,56 +1,5 @@
-```
-# Dependencies
-node_modules/
+(frontend/src/components/Pages/Home.jsx is a source file, and there are no build artifacts, dependencies, or temp files in the changes)
 
-# Build artifacts
-dist/
-build/
-*.js.map
+```gitignore
 
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Python (if applicable)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Temporary files
-*.tmp
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Cache directories
-.mypy_cache/
-.pytest_cache/
-.nyc_output/
-coverage/lcov-report/
-
-# Distribution / packaging
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
 ```
