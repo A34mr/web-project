@@ -81,11 +81,10 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
       review
     });
   } catch (error) {
-    console.error('Submit review error:', error);
+    console.error('Submit review error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to submit review',
-      error: error.message 
+      message: 'Failed to submit review'
     });
   }
 });
@@ -109,11 +108,10 @@ router.get('/clinic/:clinicId', async (req, res) => {
       reviews
     });
   } catch (error) {
-    console.error('Get reviews error:', error);
+    console.error('Get reviews error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch reviews',
-      error: error.message 
+      message: 'Failed to fetch reviews'
     });
   }
 });
@@ -131,11 +129,10 @@ router.get('/my-reviews', authMiddleware, roleCheck('patient'), async (req, res)
       reviews
     });
   } catch (error) {
-    console.error('Get my reviews error:', error);
+    console.error('Get my reviews error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch reviews',
-      error: error.message 
+      message: 'Failed to fetch reviews'
     });
   }
 });

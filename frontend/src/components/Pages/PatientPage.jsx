@@ -1,5 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from "react";
+import api from "../../services/api";
 // import EditProfileModal from "./EditProfileModal"; // Temporarily disabled - file missing
 const Icon = {
   back: (props) => (
@@ -66,7 +67,7 @@ const sample = {
   patient: { name: "Adham Mahrous Ali", id: "P-2024-0127", age: 25, gender: "Male", blood: "A+", email: "adhammahrous69@gmail.com", phone: "+20 1067 133 442", dob: "nov 17, 2002" },
   allergies: ["Penicillin", "Aspirin"],
   chronic: ["Hypertension"],
-  medications: ["Blood Pressure Medication – Losartan 50mg"],
+  medications: ["Blood Pressure Medication - Losartan 50mg"],
   upcoming: [
     { id: "a1", title: "Routine Checkup", doctor: "Dr. Ahmed Mahmoud", date: "February 8, 2026", time: "10:00 AM", location: "Main Clinic", status: "Confirmed" },
     { id: "a2", title: "Teeth Whitening", doctor: "Dr. Sara Khaled", date: "February 15, 2026", time: "02:30 PM", location: "Al Malqa Branch", status: "Pending" },
@@ -75,8 +76,8 @@ const sample = {
     { id: "p1", title: "General Checkup", doctor: "Dr. Ahmed Mahmoud", date: "February 5, 2026", time: "09:00 AM", status: "Completed", notes: "Everything looks good after examination" },
     { id: "p2", title: "Teeth Cleaning", doctor: "Dr. Fatima Saeed", date: "January 20, 2026", time: "11:00 AM", status: "Completed", notes: "Teeth cleaning and tartar removal completed" },
   ],
-  dentalHistory: ["Lower right molar filling – 2024","Regular cleaning every 6 months","Upper left molar crown – 2023"],
-  surgeries: ["Tonsillectomy – 2015"],
+  dentalHistory: ["Lower right molar filling - 2024","Regular cleaning every 6 months","Upper left molar crown - 2023"],
+  surgeries: ["Tonsillectomy - 2015"],
   documents: [
     { id: "d1", name: "Panoramic X-Ray.pdf", type: "X-Ray", date: "February 5, 2026", size: "2.4 MB" },
     { id: "d2", name: "Comprehensive Exam Report.pdf", type: "Report", date: "January 20, 2026", size: "1.1 MB" },
@@ -95,18 +96,18 @@ function PatientHeader({ p, onEdit }) {
       <div className="header-gradient">
         <div className="header-content">
   <div className="header-left">
-    <div className="avatar">👤</div>
+    <div className="avatar">?</div>
 
     <div className="header-info">
       <h1 className="patient-name">{p.name}</h1>
       <div className="header-meta">
-        Patient ID: {p.id} • {p.age} years old • {p.gender} • Blood Type: {p.blood}
+        Patient ID: {p.id} - {p.age} years old - {p.gender} - Blood Type: {p.blood}
       </div>
     </div>
   </div>
 
   <button
-  
+
         className="btn btn-header"
         onClick={onEdit}
       >
@@ -120,7 +121,7 @@ function PatientHeader({ p, onEdit }) {
       <div className="header-contacts">
         <div className="contact-item">{Icon.email({})}<span>{p.email}</span></div>
         <div className="contact-item">{Icon.phone({})}<span>{p.phone}</span></div>
-        <div className="contact-item">{Icon.calendar({})}<span>Date of Birth — {p.dob}</span></div>
+        <div className="contact-item">{Icon.calendar({})}<span>Date of Birth - {p.dob}</span></div>
       </div>
     </Card>
   );
@@ -130,15 +131,15 @@ function InfoGrid({ allergies, chronic, meds }) {
   return (
     <div className="info-grid">
       <Card>
-        <div className="info-title"><span className="ico red">🧪</span> Allergies</div>
+        <div className="info-title"><span className="ico red">?</span> Allergies</div>
         <div className="chips">{allergies.map((a,i)=>(<span className="chip chip-red" key={i}>{a}</span>))}</div>
       </Card>
       <Card>
-        <div className="info-title"><span className="ico orange">🏥</span> Chronic Diseases</div>
+        <div className="info-title"><span className="ico orange">?</span> Chronic Diseases</div>
         <div className="chips">{chronic.map((c,i)=>(<span className="chip chip-orange" key={i}>{c}</span>))}</div>
       </Card>
       <Card>
-        <div className="info-title"><span className="ico green">💊</span> Current Medications</div>
+        <div className="info-title"><span className="ico green">?</span> Current Medications</div>
         <div className="chips">{meds.map((m,i)=>(<span className="chip chip-green" key={i}>{m}</span>))}</div>
       </Card>
     </div>
@@ -200,7 +201,7 @@ function AppointmentsTab({ data }) {
 function HistoryList({ title, color, items }) {
   return (<>
     <div className="subsection-title"><span className={`bullet ${color}`} /> <span>{title}</span></div>
-    <div className="history-list">{items.map((line,i)=>(<div key={i} className={`history-item ${color}`}>• {line}</div>))}</div>
+    <div className="history-list">{items.map((line,i)=>(<div key={i} className={`history-item ${color}`}>- {line}</div>))}</div>
   </>);
 }
 
@@ -227,7 +228,7 @@ function DocRow({ doc }) {
         <div className="doc-badge">{Icon.doc({})}</div>
         <div>
           <div className="doc-name">{doc.name}</div>
-          <div className="muted">{doc.type} • {doc.date} • {doc.size}</div>
+          <div className="muted">{doc.type} - {doc.date} - {doc.size}</div>
         </div>
       </div>
       <button className="icon-btn" title="Download">{Icon.download({})}</button>
@@ -235,59 +236,33 @@ function DocRow({ doc }) {
   );
 }
 
+/*
+ * FIX #12: DocumentsTab - Use the centralized api service instead of
+ * hardcoded localhost URLs. The /api/documents endpoint does not exist
+ * on the backend, so document upload/load is disabled with a clear notice.
+ */
 function DocumentsTab({ patient }) {
-  const [docs, setDocs] = useState([]);
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    async function load() {
-      if (!patient || !patient._id) return;
-      try {
-        const res = await fetch(`http://localhost:5000/api/documents?patientId=${patient._id}`);
-        if (!res.ok) throw new Error('Failed to load docs');
-        const data = await res.json();
-        setDocs(data.map(d=>({ id: d._id, name: d.name, type: d.type, date: new Date(d.uploadedAt).toLocaleDateString(), size: (d.size/1024/1024).toFixed(2) + ' MB', path: d.path })));
-      } catch (err) {
-        console.warn('Docs load error:', err.message);
-      }
-    }
-    load();
-  }, [patient]);
-
-  const handleChoose = (e) => setFile(e.target.files[0]);
-
-  const handleUpload = async () => {
-    if (!file || !patient || !patient._id) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('patientId', patient._id);
-      fd.append('name', file.name);
-      const res = await fetch('http://localhost:5000/api/documents', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Upload failed');
-      const saved = await res.json();
-      setDocs(prev => [{ id: saved._id, name: saved.name, type: saved.type, date: new Date(saved.uploadedAt).toLocaleDateString(), size: (saved.size/1024/1024).toFixed(2) + ' MB', path: saved.path }, ...prev]);
-      setFile(null);
-    } catch (err) {
-      console.error('Upload error:', err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
+  const docs = []; // No backend endpoint for documents yet
 
   return (
     <div className="tab-panel">
-      <div className="uploader"><div className="uploader-dash">
-        <input type="file" onChange={handleChoose} />
-        <button className="btn btn-primary" onClick={handleUpload} disabled={!file || uploading}>{uploading ? 'Uploading...' : 'Upload'}</button>
-      </div></div>
-      <div className="stack">{docs.map(d=> <DocRow key={d.id} doc={d} />)}</div>
+      <div className="uploader">
+        <div className="uploader-dash">
+          <p style={{ color: '#888', fontSize: '14px' }}>
+            Document upload is currently under development. Please contact your clinic for document management.
+          </p>
+        </div>
+      </div>
+      <div className="stack">{docs.map(d => <DocRow key={d.id} doc={d} />)}</div>
     </div>
   );
 }
 
+/*
+ * FIX #9 & #12: PatientPage - Use the centralized api service (imported above)
+ * instead of hardcoded localhost URLs. The /api/patients endpoint does not
+ * exist on the backend, so we use the /api/auth/me endpoint to get user data.
+ */
 export default function PatientPage(){
   const [patient, setPatient] = useState(null);
   const [active,setActive] = useState('appointments');
@@ -295,32 +270,29 @@ export default function PatientPage(){
   const p = useMemo(()=>sample,[]);
 
   useEffect(() => {
-    // fetch patients from backend and pick the first one
+    // FIX #9: Use api service instead of hardcoded fetch('http://localhost:5000/...')
+    // Load current user profile via the authenticated /api/auth/me endpoint
     async function load() {
       try {
-        const res = await fetch('http://localhost:5000/api/patients');
-        if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          // map server fields to UI fields if needed
-          const srv = data[0];
+        const res = await api.get('/api/auth/me');
+        if (res.data && res.data.user) {
+          const u = res.data.user;
           setPatient({
-            _id: srv._id,
-            name: srv.name || sample.patient.name,
-            id: srv.patientId || sample.patient.id,
-            age: srv.age || sample.patient.age,
-            gender: srv.gender || sample.patient.gender,
-            blood: srv.blood || sample.patient.blood,
-            email: srv.email || sample.patient.email,
-            phone: srv.phone || sample.patient.phone,
-            dob: srv.dob || sample.patient.dob,
+            _id: u._id,
+            name: `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+            id: u.patientId || sample.patient.id,
+            age: u.age || sample.patient.age,
+            gender: u.gender || sample.patient.gender,
+            blood: u.bloodType || sample.patient.blood,
+            email: u.email || sample.patient.email,
+            phone: u.phone || sample.patient.phone,
+            dob: u.dob || sample.patient.dob,
           });
         } else {
-          // no patient in DB -> use sample
           setPatient(sample.patient);
         }
       } catch (err) {
-        console.warn('Could not load patient from backend, using sample:', err.message);
+        console.warn('Could not load user profile from backend, using sample:', err.message);
         setPatient(sample.patient);
       }
     }
@@ -355,26 +327,20 @@ export default function PatientPage(){
     data={patient||sample.patient}
     onClose={() => setIsEditOpen(false)}
     onSave={async (updatedPatient) => {
-      // send update to backend: if we have _id do PUT, otherwise POST
+      // FIX #9: Use api service for profile update via /api/auth/me
       try {
         if (updatedPatient._id) {
-          const res = await fetch(`http://localhost:5000/api/patients/${updatedPatient._id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedPatient),
-          });
-          if (!res.ok) throw new Error('Update failed');
-          const saved = await res.json();
-          setPatient({ ...patient, ...saved });
-        } else {
-          const res = await fetch('http://localhost:5000/api/patients', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedPatient),
-          });
-          if (!res.ok) throw new Error('Create failed');
-          const saved = await res.json();
-          setPatient({ ...updatedPatient, _id: saved._id });
+          const { firstName, lastName, phone } = updatedPatient;
+          const res = await api.put('/api/auth/me', { firstName, lastName, phone });
+          if (res.data && res.data.user) {
+            const u = res.data.user;
+            setPatient({
+              ...patient,
+              name: `${u.firstName || ''} ${u.lastName || ''}`.trim(),
+              email: u.email,
+              phone: u.phone,
+            });
+          }
         }
         setIsEditOpen(false);
       } catch (err) {
@@ -389,5 +355,5 @@ export default function PatientPage(){
       </div>
     </div>
   );
-  
+
 }

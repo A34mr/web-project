@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -15,41 +15,128 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+  // ── FIX #10: Refresh token support ──
+  const getRefreshToken = () => localStorage.getItem('refreshToken');
+  const setTokens = (accessToken, refreshToken) => {
+    localStorage.setItem('token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
     }
-    setLoading(false);
+  };
+  const clearTokens = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  };
+
+  // Refresh access token using refresh token
+  const refreshAccessToken = useCallback(async () => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const response = await api.post('/api/auth/refresh-token', { refreshToken });
+      const { token } = response.data;
+      setTokens(token, refreshToken);
+      return token;
+    } catch (err) {
+      // Refresh token is invalid/expired, force logout
+      clearTokens();
+      setUser(null);
+      return null;
+    }
   }, []);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (token && storedUser) {
+        try {
+          // Verify the token is still valid by fetching user profile
+          api.defaults.headers.common.Authorization = `Bearer ${token}`;
+          const response = await api.get('/api/auth/me');
+          if (response.data && response.data.user) {
+            setUser(response.data.user);
+          } else {
+            // Token invalid, try refresh
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+              const retryResponse = await api.get('/api/auth/me');
+              if (retryResponse.data && retryResponse.data.user) {
+                setUser(retryResponse.data.user);
+              } else {
+                clearTokens();
+              }
+            } else {
+              clearTokens();
+            }
+          }
+        } catch (err) {
+          // If 401, try refreshing
+          if (err.response?.status === 401) {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              try {
+                api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+                const response = await api.get('/api/auth/me');
+                if (response.data && response.data.user) {
+                  setUser(response.data.user);
+                } else {
+                  clearTokens();
+                }
+              } catch {
+                clearTokens();
+              }
+            } else {
+              clearTokens();
+            }
+          } else {
+            clearTokens();
+          }
+        }
+      }
+      setLoading(false);
+    };
+    initAuth();
+  }, [refreshAccessToken]);
 
   const login = async (email, password) => {
     const response = await api.post('/api/auth/login', { email, password });
-    const { token, user } = response.data;
-    
-    localStorage.setItem('token', token);
+    const { token, refreshToken, user } = response.data;
+
+    setTokens(token, refreshToken);
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
-    
+
     return response.data;
   };
 
   const register = async (userData) => {
     const response = await api.post('/api/auth/register', userData);
-    const { token, user } = response.data;
-    
-    localStorage.setItem('token', token);
+    const { token, refreshToken, user } = response.data;
+
+    setTokens(token, refreshToken);
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
-    
+
     return response.data;
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      // Notify server to blacklist tokens
+      const refreshToken = getRefreshToken();
+      await api.post('/api/auth/logout', { refreshToken });
+    } catch (err) {
+      // Continue with local logout even if server call fails
+    }
+    clearTokens();
+    delete api.defaults.headers.common.Authorization;
     setUser(null);
   };
 

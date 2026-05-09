@@ -12,18 +12,18 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
     const { doctorId, clinicId, dateTime, reason, notes, duration } = req.body;
 
     if (!doctorId || !clinicId || !dateTime || !reason) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Required fields are missing' 
+      return res.status(400).json({
+        success: false,
+        message: 'Required fields are missing'
       });
     }
 
     // Check if doctor exists and belongs to clinic
     const doctor = await DoctorProfile.findById(doctorId);
     if (!doctor) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Doctor not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
       });
     }
 
@@ -35,9 +35,9 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
     });
 
     if (existingAppointment) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'This time slot is already booked' 
+      return res.status(400).json({
+        success: false,
+        message: 'This time slot is already booked'
       });
     }
 
@@ -72,11 +72,10 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
       appointment: populatedAppointment
     });
   } catch (error) {
-    console.error('Book appointment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to book appointment',
-      error: error.message 
+    console.error('Book appointment error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to book appointment'
     });
   }
 });
@@ -85,13 +84,13 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
 router.get('/my-appointments', authMiddleware, roleCheck('patient'), async (req, res) => {
   try {
     const { status, upcoming } = req.query;
-    
+
     let query = { patient: req.userId };
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (upcoming === 'true') {
       query.dateTime = { $gte: new Date() };
     }
@@ -111,11 +110,10 @@ router.get('/my-appointments', authMiddleware, roleCheck('patient'), async (req,
       appointments
     });
   } catch (error) {
-    console.error('Get appointments error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch appointments',
-      error: error.message 
+    console.error('Get appointments error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch appointments'
     });
   }
 });
@@ -123,14 +121,50 @@ router.get('/my-appointments', authMiddleware, roleCheck('patient'), async (req,
 // Get clinic's appointments
 router.get('/clinic/:clinicId', authMiddleware, async (req, res) => {
   try {
+    const clinicId = req.params.clinicId;
     const { status, date } = req.query;
-    
-    let query = { clinic: req.params.clinicId };
-    
+
+    // ── FIX #7: Verify the user is affiliated with this clinic ──
+    // Patients: must have an appointment at this clinic
+    // Doctors/Clinic Admins: must work at this clinic
+    // Admins: can view any clinic
+    const userRole = req.user.role;
+    const userId = req.userId;
+
+    if (userRole !== 'admin') {
+      // Check if user is clinic admin
+      const clinic = await Clinic.findById(clinicId);
+      if (!clinic) {
+        return res.status(404).json({
+          success: false,
+          message: 'Clinic not found'
+        });
+      }
+
+      const isAdmin = clinic.admin && clinic.admin.toString() === userId;
+      const isDoctor = userRole === 'doctor' || userRole === 'clinic_admin';
+
+      if (!isAdmin && !isDoctor) {
+        // For patients: check if they have appointments at this clinic
+        const hasAppointment = await Appointment.exists({
+          clinic: clinicId,
+          patient: userId
+        });
+        if (!hasAppointment) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. You are not affiliated with this clinic.'
+          });
+        }
+      }
+    }
+
+    let query = { clinic: clinicId };
+
     if (status) {
       query.status = status;
     }
-    
+
     if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
@@ -153,11 +187,10 @@ router.get('/clinic/:clinicId', authMiddleware, async (req, res) => {
       appointments
     });
   } catch (error) {
-    console.error('Get clinic appointments error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch appointments',
-      error: error.message 
+    console.error('Get clinic appointments error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch appointments'
     });
   }
 });
@@ -166,26 +199,26 @@ router.get('/clinic/:clinicId', authMiddleware, async (req, res) => {
 router.put('/:id/confirm', authMiddleware, async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
-    
+
     if (!appointment) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Appointment not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
       });
     }
 
     // Only patient or clinic admin can confirm
     if (req.user.role !== 'patient' && req.user.role !== 'clinic_admin' && req.user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
       });
     }
 
     if (appointment.patient.toString() !== req.userId && req.user.role !== 'clinic_admin' && req.user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
       });
     }
 
@@ -198,11 +231,10 @@ router.put('/:id/confirm', authMiddleware, async (req, res) => {
       appointment
     });
   } catch (error) {
-    console.error('Confirm appointment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to confirm appointment',
-      error: error.message 
+    console.error('Confirm appointment error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to confirm appointment'
     });
   }
 });
@@ -211,19 +243,19 @@ router.put('/:id/confirm', authMiddleware, async (req, res) => {
 router.put('/:id/cancel', authMiddleware, async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
-    
+
     if (!appointment) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Appointment not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
       });
     }
 
     // Only patient or admin can cancel
     if (appointment.patient.toString() !== req.userId && req.user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
       });
     }
 
@@ -236,25 +268,40 @@ router.put('/:id/cancel', authMiddleware, async (req, res) => {
       appointment
     });
   } catch (error) {
-    console.error('Cancel appointment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to cancel appointment',
-      error: error.message 
+    console.error('Cancel appointment error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to cancel appointment'
     });
   }
 });
 
-// Complete appointment (doctor/clinic admin)
-router.put('/:id/complete', authMiddleware, async (req, res) => {
+// ── FIX #6: Complete appointment - restricted to doctors/clinic_admins/admins ──
+router.put('/:id/complete', authMiddleware, roleCheck('doctor', 'clinic_admin', 'admin'), async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
-    
+
     if (!appointment) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Appointment not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
       });
+    }
+
+    // Verify the doctor/clinic_admin is associated with this appointment's clinic
+    if (req.user.role !== 'admin') {
+      const clinic = await Clinic.findById(appointment.clinic);
+      const isClinicAdmin = clinic && clinic.admin && clinic.admin.toString() === req.userId;
+
+      if (!isClinicAdmin && req.user.role !== 'admin') {
+        // Check if doctor is assigned to this appointment
+        if (appointment.doctor && appointment.doctor.toString() !== req.userId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied. You can only complete your own appointments.'
+          });
+        }
+      }
     }
 
     appointment.status = 'completed';
@@ -266,11 +313,10 @@ router.put('/:id/complete', authMiddleware, async (req, res) => {
       appointment
     });
   } catch (error) {
-    console.error('Complete appointment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to complete appointment',
-      error: error.message 
+    console.error('Complete appointment error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to complete appointment'
     });
   }
 });
@@ -279,20 +325,20 @@ router.put('/:id/complete', authMiddleware, async (req, res) => {
 router.put('/:id/payment', authMiddleware, roleCheck('patient'), async (req, res) => {
   try {
     const { paymentMethod, transactionId } = req.body;
-    
+
     const appointment = await Appointment.findById(req.params.id);
-    
+
     if (!appointment) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Appointment not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found'
       });
     }
 
     if (appointment.patient.toString() !== req.userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
       });
     }
 
@@ -307,11 +353,10 @@ router.put('/:id/payment', authMiddleware, roleCheck('patient'), async (req, res
       appointment
     });
   } catch (error) {
-    console.error('Payment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to process payment',
-      error: error.message 
+    console.error('Payment error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process payment'
     });
   }
 });

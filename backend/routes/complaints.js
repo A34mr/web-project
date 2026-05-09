@@ -47,11 +47,10 @@ router.post('/', authMiddleware, roleCheck('patient'), async (req, res) => {
       complaint
     });
   } catch (error) {
-    console.error('Submit complaint error:', error);
+    console.error('Submit complaint error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to submit complaint',
-      error: error.message 
+      message: 'Failed to submit complaint'
     });
   }
 });
@@ -69,11 +68,10 @@ router.get('/my-complaints', authMiddleware, roleCheck('patient'), async (req, r
       complaints
     });
   } catch (error) {
-    console.error('Get complaints error:', error);
+    console.error('Get complaints error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch complaints',
-      error: error.message 
+      message: 'Failed to fetch complaints'
     });
   }
 });
@@ -108,11 +106,10 @@ router.get('/clinic/:clinicId', authMiddleware, async (req, res) => {
       complaints
     });
   } catch (error) {
-    console.error('Get clinic complaints error:', error);
+    console.error('Get clinic complaints error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch complaints',
-      error: error.message 
+      message: 'Failed to fetch complaints'
     });
   }
 });
@@ -147,11 +144,10 @@ router.put('/:id', authMiddleware, roleCheck('admin'), async (req, res) => {
       complaint
     });
   } catch (error) {
-    console.error('Update complaint error:', error);
+    console.error('Update complaint error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to update complaint',
-      error: error.message 
+      message: 'Failed to update complaint'
     });
   }
 });

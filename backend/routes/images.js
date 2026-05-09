@@ -52,11 +52,10 @@ router.post('/upload', authMiddleware, roleCheck('patient'), upload.single('imag
       image
     });
   } catch (error) {
-    console.error('Upload image error:', error);
+    console.error('Upload image error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to upload and analyze image',
-      error: error.message 
+      message: 'Failed to upload and analyze image'
     });
   }
 });
@@ -74,11 +73,10 @@ router.get('/my-images', authMiddleware, roleCheck('patient'), async (req, res) 
       images
     });
   } catch (error) {
-    console.error('Get images error:', error);
+    console.error('Get images error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch images',
-      error: error.message 
+      message: 'Failed to fetch images'
     });
   }
 });
@@ -115,11 +113,10 @@ router.get('/appointment/:appointmentId', authMiddleware, async (req, res) => {
       images
     });
   } catch (error) {
-    console.error('Get appointment images error:', error);
+    console.error('Get appointment images error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch images',
-      error: error.message 
+      message: 'Failed to fetch images'
     });
   }
 });
@@ -157,11 +154,10 @@ router.put('/:id/review', authMiddleware, roleCheck('doctor', 'clinic_admin'), a
       image
     });
   } catch (error) {
-    console.error('Add review error:', error);
+    console.error('Add review error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to add review',
-      error: error.message 
+      message: 'Failed to add review'
     });
   }
 });
@@ -196,11 +192,10 @@ router.get('/:id', authMiddleware, async (req, res) => {
       image
     });
   } catch (error) {
-    console.error('Get image error:', error);
+    console.error('Get image error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch image',
-      error: error.message 
+      message: 'Failed to fetch image'
     });
   }
 });

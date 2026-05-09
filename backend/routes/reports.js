@@ -64,11 +64,10 @@ router.post('/', authMiddleware, roleCheck('doctor', 'clinic_admin'), async (req
       report
     });
   } catch (error) {
-    console.error('Create report error:', error);
+    console.error('Create report error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to create report',
-      error: error.message 
+      message: 'Failed to create report'
     });
   }
 });
@@ -94,11 +93,10 @@ router.put('/:id/finalize', authMiddleware, roleCheck('doctor', 'clinic_admin'),
       report
     });
   } catch (error) {
-    console.error('Finalize report error:', error);
+    console.error('Finalize report error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to finalize report',
-      error: error.message 
+      message: 'Failed to finalize report'
     });
   }
 });
@@ -203,11 +201,10 @@ router.get('/:id/pdf', authMiddleware, async (req, res) => {
       });
     });
   } catch (error) {
-    console.error('Generate PDF error:', error);
+    console.error('Generate PDF error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to generate PDF',
-      error: error.message 
+      message: 'Failed to generate PDF'
     });
   }
 });
@@ -226,11 +223,10 @@ router.get('/my-reports', authMiddleware, roleCheck('patient'), async (req, res)
       reports
     });
   } catch (error) {
-    console.error('Get reports error:', error);
+    console.error('Get reports error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch reports',
-      error: error.message 
+      message: 'Failed to fetch reports'
     });
   }
 });

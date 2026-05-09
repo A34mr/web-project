@@ -54,11 +54,10 @@ router.post('/send', authMiddleware, async (req, res) => {
       chatMessage
     });
   } catch (error) {
-    console.error('Send message error:', error);
+    console.error('Send message error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to send message',
-      error: error.message 
+      message: 'Failed to send message'
     });
   }
 });
@@ -98,11 +97,10 @@ router.get('/conversation/:userId', authMiddleware, async (req, res) => {
       messages: messages.reverse() // Return in chronological order
     });
   } catch (error) {
-    console.error('Get conversation error:', error);
+    console.error('Get conversation error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch conversation',
-      error: error.message 
+      message: 'Failed to fetch conversation'
     });
   }
 });
@@ -200,11 +198,10 @@ router.get('/conversations', authMiddleware, async (req, res) => {
       conversations: uniqueContacts
     });
   } catch (error) {
-    console.error('Get conversations error:', error);
+    console.error('Get conversations error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch conversations',
-      error: error.message 
+      message: 'Failed to fetch conversations'
     });
   }
 });
@@ -222,11 +219,10 @@ router.get('/unread/count', authMiddleware, async (req, res) => {
       count
     });
   } catch (error) {
-    console.error('Get unread count error:', error);
+    console.error('Get unread count error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to get unread count',
-      error: error.message 
+      message: 'Failed to get unread count'
     });
   }
 });

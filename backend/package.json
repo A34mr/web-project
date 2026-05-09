@@ -7,7 +7,12 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["dentai", "dental", "healthcare", "ai"],
+  "keywords": [
+    "dentai",
+    "dental",
+    "healthcare",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Dent AI Backend - Smart Dental Clinic Platform",
@@ -18,11 +23,14 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.1",
     "multer": "^2.1.1",
-    "nodemon": "^3.1.14",
     "pdfkit": "^0.18.0",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

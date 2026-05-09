@@ -43,11 +43,10 @@ router.get('/', async (req, res) => {
       clinics
     });
   } catch (error) {
-    console.error('Get clinics error:', error);
+    console.error('Get clinics error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch clinics',
-      error: error.message 
+      message: 'Failed to fetch clinics'
     });
   }
 });
@@ -121,11 +120,10 @@ router.get('/nearest', async (req, res) => {
       clinics
     });
   } catch (error) {
-    console.error('Get nearest clinics error:', error);
+    console.error('Get nearest clinics error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch nearest clinics',
-      error: error.message 
+      message: 'Failed to fetch nearest clinics'
     });
   }
 });
@@ -156,11 +154,10 @@ router.get('/:id', async (req, res) => {
       clinic
     });
   } catch (error) {
-    console.error('Get clinic error:', error);
+    console.error('Get clinic error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to fetch clinic',
-      error: error.message 
+      message: 'Failed to fetch clinic'
     });
   }
 });
@@ -226,11 +223,10 @@ router.post('/', authMiddleware, roleCheck('clinic_admin', 'admin'), async (req,
       clinic
     });
   } catch (error) {
-    console.error('Register clinic error:', error);
+    console.error('Register clinic error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to register clinic',
-      error: error.message 
+      message: 'Failed to register clinic'
     });
   }
 });
@@ -271,11 +267,10 @@ router.put('/:id', authMiddleware, async (req, res) => {
       clinic
     });
   } catch (error) {
-    console.error('Update clinic error:', error);
+    console.error('Update clinic error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to update clinic',
-      error: error.message 
+      message: 'Failed to update clinic'
     });
   }
 });
@@ -301,11 +296,10 @@ router.put('/:id/approve', authMiddleware, roleCheck('admin'), async (req, res) 
       clinic
     });
   } catch (error) {
-    console.error('Approve clinic error:', error);
+    console.error('Approve clinic error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to approve clinic',
-      error: error.message 
+      message: 'Failed to approve clinic'
     });
   }
 });
@@ -330,11 +324,10 @@ router.delete('/:id', authMiddleware, roleCheck('admin'), async (req, res) => {
       message: 'Clinic deactivated successfully'
     });
   } catch (error) {
-    console.error('Delete clinic error:', error);
+    console.error('Delete clinic error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to delete clinic',
-      error: error.message 
+      message: 'Failed to delete clinic'
     });
   }
 });
