@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
 export default function Login() {
@@ -98,8 +98,8 @@ export default function Login() {
           <p style={{ color:"#7a8fa6", marginBottom:32, fontSize:15 }}>Sign in to your account to continue</p>
 
           <div style={{ marginBottom:20 }}>
-            <label style={{ display:"block", fontSize:13, fontWeight:600, color:"#3a5068", marginBottom:6 }}>Email or Username</label>
-            <input type="text" placeholder="Enter your email or username" value={form.identifier}
+            <label style={{ display:"block", fontSize:13, fontWeight:600, color:"#3a5068", marginBottom:6 }}>Email Address</label>
+            <input type="email" placeholder="Enter your registered email" value={form.identifier}
               onChange={e => setForm({...form, identifier:e.target.value})}
               style={{ width:"100%", padding:"12px 16px", borderRadius:10, border:`1.5px solid ${errors.identifier?"#e53935":"#c9d8e8"}`, fontSize:15, outline:"none", background:"#f7faff", color:"#1a2a3a", boxSizing:"border-box" }}
             />

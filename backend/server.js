@@ -34,10 +34,10 @@ const io = socketIo(server, {
 // Store io instance for use in routes
 app.set('io', io);
 
-// ── FIX #5: Rate Limiting ──
+// ── FIX #5: Rate Limiting (Increased for Development) ──
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 1000, // Increased for dev
   message: { success: false, message: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false
@@ -45,7 +45,7 @@ const globalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 50, // Increased for dev
   message: { success: false, message: 'Too many login attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false
@@ -53,7 +53,7 @@ const authLimiter = rateLimit({
 
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5,
+  max: 20, // Increased for dev
   message: { success: false, message: 'Too many registration attempts, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false

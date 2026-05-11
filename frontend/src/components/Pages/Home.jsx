@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
-const NAV_LINKS = ["Home", "Services", "About", "Contact"];
+const NAV_LINKS = [
+  { name: "Home", path: "/" },
+  { name: "Clinics", path: "/search" },
+  { name: "AI Diagnosis", path: "/ai-diagnosis" },
+  { name: "Contact", path: "#contact" }
+];
 
 const SERVICES = [
   {
@@ -58,6 +64,7 @@ const HOURS = [
 
 export default function DentalClinicHome() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -98,44 +105,73 @@ export default function DentalClinicHome() {
           {/* Nav Links */}
           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
             {NAV_LINKS.map(link => (
-              <a key={link} href="#" style={{
-                color: link === "Home" ? "#1a73e8" : "#4a5568",
-                textDecoration: "none", fontSize: 15, fontWeight: link === "Home" ? 600 : 400,
+              <a key={link.name} href={link.path} style={{
+                color: link.name === "Home" ? "#1a73e8" : "#4a5568",
+                textDecoration: "none", fontSize: 15, fontWeight: link.name === "Home" ? 600 : 400,
                 transition: "color 0.2s"
               }}
                 onMouseEnter={e => e.target.style.color = "#1a73e8"}
-                onMouseLeave={e => e.target.style.color = link === "Home" ? "#1a73e8" : "#4a5568"}
-              >{link}</a>
+                onMouseLeave={e => e.target.style.color = link.name === "Home" ? "#1a73e8" : "#4a5568"}
+              >{link.name}</a>
             ))}
           </div>
 
           {/* Auth Buttons */}
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <button 
-              onClick={() => navigate('/login')}
-              style={{
-                background: "none", border: "none", color: "#4a5568",
-                fontSize: 14, cursor: "pointer", padding: "8px 12px", borderRadius: 8,
-                display: "flex", alignItems: "center", gap: 6
-              }}
-            >
-              👤 Login
-            </button>
-            <button 
-              onClick={() => navigate('/signup')}
-              style={{
-                background: "linear-gradient(135deg, #1a73e8, #0d47a1)",
-                border: "none", color: "#fff", fontSize: 14, fontWeight: 600,
-                cursor: "pointer", padding: "9px 20px", borderRadius: 8,
-                display: "flex", alignItems: "center", gap: 6,
-                boxShadow: "0 2px 8px rgba(26,115,232,0.35)",
-                transition: "transform 0.15s, box-shadow 0.15s"
-              }}
-              onMouseEnter={e => { e.target.style.transform = "translateY(-1px)"; e.target.style.boxShadow = "0 4px 16px rgba(26,115,232,0.45)"; }}
-              onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = "0 2px 8px rgba(26,115,232,0.35)"; }}
-            >
-              📅 Sign Up
-            </button>
+            {user ? (
+              <>
+                <Link 
+                  to={user.role === 'patient' ? '/patient/dashboard' : user.role === 'doctor' ? '/doctor/dashboard' : user.role === 'clinic_admin' ? '/clinic/dashboard' : '/admin/dashboard'}
+                  style={{
+                    background: "rgba(26,115,232,0.1)",
+                    textDecoration: "none", color: "#1a73e8", fontSize: 14, fontWeight: 600,
+                    cursor: "pointer", padding: "9px 16px", borderRadius: 8,
+                    display: "flex", alignItems: "center", gap: 6,
+                    border: "1px solid rgba(26,115,232,0.2)"
+                  }}
+                >
+                  📊 Dashboard
+                </Link>
+                <button 
+                  onClick={logout}
+                  style={{
+                    background: "none", border: "none", color: "#64748b",
+                    fontSize: 14, cursor: "pointer", padding: "8px 12px", borderRadius: 8,
+                    display: "flex", alignItems: "center", gap: 6
+                  }}
+                >
+                  🚪 Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login"
+                  style={{
+                    textDecoration: "none", color: "#4a5568",
+                    fontSize: 14, cursor: "pointer", padding: "8px 12px", borderRadius: 8,
+                    display: "flex", alignItems: "center", gap: 6
+                  }}
+                >
+                  👤 Login
+                </Link>
+                <Link 
+                  to="/signup"
+                  style={{
+                    background: "linear-gradient(135deg, #1a73e8, #0d47a1)",
+                    textDecoration: "none", color: "#fff", fontSize: 14, fontWeight: 600,
+                    cursor: "pointer", padding: "9px 20px", borderRadius: 8,
+                    display: "flex", alignItems: "center", gap: 6,
+                    boxShadow: "0 2px 8px rgba(26,115,232,0.35)",
+                    transition: "transform 0.15s, box-shadow 0.15s"
+                  }}
+                  onMouseEnter={e => { e.target.style.transform = "translateY(-1px)"; e.target.style.boxShadow = "0 4px 16px rgba(26,115,232,0.45)"; }}
+                  onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = "0 2px 8px rgba(26,115,232,0.35)"; }}
+                >
+                  📅 Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -173,20 +209,21 @@ export default function DentalClinicHome() {
 
             {/* CTA Buttons */}
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <button 
-                onClick={() => navigate('/login')}
+              <Link 
+                to="/search"
                 style={{
                   background: "#fff", color: "#1565c0", border: "none",
                   padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
                   boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                  transition: "transform 0.15s, box-shadow 0.15s"
+                  transition: "transform 0.15s, box-shadow 0.15s",
+                  textDecoration: "none"
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
                 onMouseLeave={e => e.currentTarget.style.transform = ""}
               >
-                📅 Book Appointment
-              </button>
+                🔍 Find a Clinic
+              </Link>
               <button 
                 onClick={() => navigate('/contact')}
                 style={{
@@ -365,20 +402,21 @@ export default function DentalClinicHome() {
                 </div>
               ))}
 
-              <button 
-                onClick={() => navigate('/login')}
+              <Link 
+                to="/login"
                 style={{
                   background: "#fff", color: "#1565c0", border: "none",
                   padding: "13px 28px", borderRadius: 10, fontSize: 15, fontWeight: 700,
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 8, marginTop: 8,
                   boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                  transition: "transform 0.15s"
+                  transition: "transform 0.15s",
+                  textDecoration: "none"
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
                 onMouseLeave={e => e.currentTarget.style.transform = ""}
               >
                 📅 Book Appointment
-              </button>
+              </Link>
             </div>
 
             {/* Office Hours */}

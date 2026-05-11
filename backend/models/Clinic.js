@@ -58,6 +58,10 @@ const clinicSchema = new mongoose.Schema({
   specialties: [{
     type: String
   }],
+  doctors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DoctorProfile'
+  }],
   description: String,
   images: [String],
   workingHours: {

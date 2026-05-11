@@ -5,6 +5,39 @@ const DoctorProfile = require('../models/DoctorProfile');
 const User = require('../models/User');
 const { authMiddleware, roleCheck } = require('../middleware/auth');
 
+// Get clinic managed by current user
+router.get('/my-clinic', authMiddleware, roleCheck('clinic_admin'), async (req, res) => {
+  try {
+    const clinic = await Clinic.findOne({ admin: req.userId })
+      .populate('admin', 'firstName lastName email')
+      .populate({
+        path: 'doctors',
+        populate: {
+          path: 'user',
+          select: 'firstName lastName email phone avatar'
+        }
+      });
+      
+    if (!clinic) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No clinic found for this user' 
+      });
+    }
+
+    res.json({
+      success: true,
+      clinic
+    });
+  } catch (error) {
+    console.error('Get my clinic error:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch your clinic'
+    });
+  }
+});
+
 // Get all clinics with filters
 router.get('/', async (req, res) => {
   try {
@@ -125,6 +158,58 @@ router.get('/nearest', async (req, res) => {
       success: false, 
       message: 'Failed to fetch nearest clinics'
     });
+  }
+});
+
+// Add a new doctor to the clinic
+router.post('/:id/doctors', authMiddleware, roleCheck('clinic_admin', 'admin'), async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, specialty, licenseNumber } = req.body;
+    const clinic = await Clinic.findById(req.params.id);
+
+    if (!clinic) return res.status(404).json({ success: false, message: 'Clinic not found' });
+    
+    // Check permissions
+    if (req.user.role !== 'admin' && clinic.admin.toString() !== req.userId) {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ success: false, message: 'Email already registered' });
+
+    // Create doctor user
+    user = new User({
+      firstName,
+      lastName,
+      email,
+      password,
+      role: 'doctor',
+      phone: 'Not provided'
+    });
+    await user.save();
+
+    // Create doctor profile
+    const doctorProfile = await DoctorProfile.create({
+      user: user._id,
+      clinic: clinic._id,
+      specialty: specialty || 'General Dentist',
+      licenseNumber: licenseNumber || 'PENDING',
+      isVerified: true
+    });
+
+    // Add to clinic's doctors list
+    clinic.doctors.push(doctorProfile._id);
+    await clinic.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Doctor added successfully',
+      doctor: doctorProfile
+    });
+  } catch (error) {
+    console.error('Add doctor error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to add doctor' });
   }
 });
 

@@ -58,9 +58,47 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Create patient profile if role is patient
+    // Create appropriate profile based on role
     if (user.role === 'patient') {
-      await PatientProfile.create({ user: user._id });
+      const { dob, gender, chronic, allergies, dentalIssues } = req.body;
+      const profileData = {
+        user: user._id,
+        dateOfBirth: dob ? new Date(dob) : undefined,
+        gender: gender?.toLowerCase(),
+        allergies: allergies ? allergies.split(',').map(s => s.trim()) : [],
+        medicalHistory: []
+      };
+      if (chronic) profileData.medicalHistory.push({ condition: chronic, notes: 'Chronic Condition' });
+      if (dentalIssues) profileData.medicalHistory.push({ condition: dentalIssues, notes: 'Previous Dental Issues' });
+      await PatientProfile.create(profileData);
+    } else if (user.role === 'clinic_admin') {
+      const { clinicName, address, city, phone } = req.body;
+      const Clinic = require('../models/Clinic');
+      await Clinic.create({
+        name: clinicName || `${user.lastName}'s Clinic`,
+        admin: user._id,
+        address: {
+          street: address || 'Not provided',
+          city: city || 'Not provided',
+          state: 'Not provided',
+          zipCode: '00000',
+          country: 'Not provided'
+        },
+        location: { coordinates: [0, 0] },
+        phone: phone || user.phone || '0000000000',
+        email: user.email,
+        licenseNumber: req.body.license || 'PENDING'
+      });
+    } else if (user.role === 'doctor') {
+      const { specialty, experience, license } = req.body;
+      const DoctorProfile = require('../models/DoctorProfile');
+      await DoctorProfile.create({
+        user: user._id,
+        specialty: specialty || 'General Dentist',
+        experience: experience || 0,
+        licenseNumber: license || 'PENDING',
+        status: 'pending'
+      });
     }
 
     // ── FIX #10: Short-lived access token ──
@@ -291,21 +329,45 @@ router.get('/me', authMiddleware, async (req, res) => {
 // Update user profile
 router.put('/me', authMiddleware, async (req, res) => {
   try {
-    const { firstName, lastName, phone, avatar } = req.body;
+    const { firstName, lastName, phone, email, dob, gender, allergies } = req.body;
 
     const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (phone) user.phone = phone;
-    if (avatar) user.avatar = avatar;
+    if (email) user.email = email;
 
     await user.save();
+
+    let profile = null;
+    if (user.role === 'patient') {
+      profile = await PatientProfile.findOne({ user: user._id });
+      if (profile) {
+        if (dob) profile.dateOfBirth = new Date(dob);
+        if (gender) profile.gender = gender.toLowerCase();
+        if (allergies) {
+          profile.allergies = Array.isArray(allergies) 
+            ? allergies 
+            : allergies.split(',').map(s => s.trim());
+        }
+        await profile.save();
+      }
+    }
 
     res.json({
       success: true,
       message: 'Profile updated successfully',
-      user
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        phone: user.phone
+      },
+      profile
     });
   } catch (error) {
     console.error('Update profile error:', error.message);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
 const steps = ["Account Type", "Your Details"];
@@ -89,13 +89,21 @@ export default function SignUp() {
       const lastName = nameParts.slice(1).join(" ") || firstName;
       
       // Prepare registration data based on account type - only send fields backend expects
+      // Map 'clinic' role to 'clinic_admin' expected by backend
       const userData = {
         email: form.email,
         password: form.password,
         firstName,
         lastName,
-        role: type,
-        phone: form.phone
+        role: type === 'clinic' ? 'clinic_admin' : type,
+        phone: form.phone,
+        // Include profile fields
+        dob: form.dob,
+        gender: form.gender,
+        chronic: form.chronic,
+        allergies: form.allergies,
+        dentalIssues: form.dentalIssues,
+        emergency: form.emergency
       };
       
       await register(userData);
