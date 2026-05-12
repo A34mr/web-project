@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
-import { 
-  Building2, Users, Calendar, Settings, 
-  MapPin, Phone, Mail, Clock, 
+import {
+  Building2, Users, Calendar, Settings,
+  MapPin, Phone, Mail, Clock,
   ChevronRight, Plus, Search, Filter,
-  TrendingUp, CheckCircle2, AlertCircle
+  TrendingUp, CheckCircle2, AlertCircle, Sparkles
 } from 'lucide-react';
 
 export default function ClinicDashboard() {
@@ -16,6 +16,8 @@ export default function ClinicDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [isAddDoctorOpen, setIsAddDoctorOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [isMissingClinic, setIsMissingClinic] = useState(false);
   const [clinicForm, setClinicForm] = useState({
     name: '', email: '', phone: '', licenseNumber: '', description: '',
     address: { street: '', city: '', state: '', zipCode: '', country: '' }
@@ -45,7 +47,7 @@ export default function ClinicDashboard() {
               country: clinicData.address?.country || ''
             }
           });
-          
+
           const aptRes = await api.get(`/api/appointments/clinic/${clinicData._id}`);
           if (aptRes.data.success) {
             setAppointments(aptRes.data.appointments || []);
@@ -53,6 +55,11 @@ export default function ClinicDashboard() {
         }
       } catch (err) {
         console.error('Failed to fetch clinic data:', err);
+        if (err.response?.status === 404) {
+          setIsMissingClinic(true);
+        } else {
+          setError('Failed to connect to the server. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
@@ -86,7 +93,7 @@ export default function ClinicDashboard() {
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'confirmed': return { bg: '#f0fdf4', text: '#22c55e' };
       case 'pending': return { bg: '#fef3c7', text: '#f59e0b' };
       case 'completed': return { bg: '#eff6ff', text: '#1a73e8' };
@@ -100,6 +107,116 @@ export default function ClinicDashboard() {
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
         <div style={{ width: '40px', height: '40px', border: '4px solid #e2e8f0', borderTopColor: '#1a73e8', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  if (isMissingClinic) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+        <div style={{ background: '#fff', padding: '48px', borderRadius: '32px', border: '1px solid #e2e8f0', maxWidth: '600px', width: '100%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.05)' }}>
+          <div style={{ width: '80px', height: '80px', background: '#fef2f2', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', margin: '0 auto 24px' }}>
+            <Building2 size={40} />
+          </div>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', marginBottom: '16px' }}>Clinic Profile Not Found</h2>
+          <p style={{ color: '#64748b', fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
+            It seems you haven't completed your clinic profile yet. To start managing your clinic, we need a few more details.
+          </p>
+          <button
+            onClick={() => setActiveTab('settings')}
+            style={{ background: '#1a73e8', color: '#fff', border: 'none', padding: '16px 32px', borderRadius: '16px', fontWeight: '700', fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s', width: '100%' }}
+            onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'none'}
+          >
+            Complete Clinic Setup
+          </button>
+        </div>
+
+        {activeTab === 'settings' && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#fff', zIndex: 2000, overflowY: 'auto', padding: '40px' }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                <h1 style={{ fontSize: '32px', fontWeight: '800' }}>Setup Your Clinic</h1>
+                <button onClick={() => window.location.reload()} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>Cancel</button>
+              </div>
+              {/* Reuse Settings component or logic here */}
+              <div style={settingsCardStyle}>
+                <h3 style={settingsSectionTitleStyle}>General Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Clinic Name</label>
+                    <input value={clinicForm.name} onChange={e => setClinicForm({ ...clinicForm, name: e.target.value })} style={settingsInputStyle} placeholder="Enter clinic name" />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Email Address</label>
+                    <input value={clinicForm.email} onChange={e => setClinicForm({ ...clinicForm, email: e.target.value })} style={settingsInputStyle} placeholder="clinic@example.com" />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Phone Number</label>
+                    <input value={clinicForm.phone} onChange={e => setClinicForm({ ...clinicForm, phone: e.target.value })} style={settingsInputStyle} placeholder="+1 234 567 890" />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>License Number</label>
+                    <input value={clinicForm.licenseNumber} onChange={e => setClinicForm({ ...clinicForm, licenseNumber: e.target.value })} style={settingsInputStyle} placeholder="LIC-12345" />
+                  </div>
+                </div>
+                <div style={{ ...inputGroupStyle, marginTop: '20px' }}>
+                  <label style={labelStyle}>Description</label>
+                  <textarea value={clinicForm.description} onChange={e => setClinicForm({ ...clinicForm, description: e.target.value })} rows="4" style={{ ...settingsInputStyle, resize: 'none' }} placeholder="Describe your clinic..." />
+                </div>
+
+                <h3 style={{ ...settingsSectionTitleStyle, marginTop: '32px' }}>Address</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Street Address</label>
+                    <input value={clinicForm.address.street} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, street: e.target.value } })} style={settingsInputStyle} />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>City</label>
+                    <input value={clinicForm.address.city} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, city: e.target.value } })} style={settingsInputStyle} />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>State/Province</label>
+                    <input value={clinicForm.address.state} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, state: e.target.value } })} style={settingsInputStyle} />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Zip/Postal Code</label>
+                    <input value={clinicForm.address.zipCode} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, zipCode: e.target.value } })} style={settingsInputStyle} />
+                  </div>
+                  <div style={inputGroupStyle}>
+                    <label style={labelStyle}>Country</label>
+                    <input value={clinicForm.address.country} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, country: e.target.value } })} style={settingsInputStyle} placeholder="e.g. Lebanon" />
+                  </div>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    const { name, email, phone, licenseNumber, address } = clinicForm;
+                    if (!name || !email || !phone || !licenseNumber || !address.street || !address.city || !address.state || !address.zipCode || !address.country) {
+                      alert('Please fill in all required fields including address details.');
+                      return;
+                    }
+
+                    try {
+                      const payload = { ...clinicForm, location: { coordinates: [0, 0] } };
+                      const res = await api.post('/api/clinics', payload);
+                      if (res.data.success) {
+                        alert('Clinic created successfully!');
+                        window.location.reload();
+                      }
+                    } catch (err) {
+                      const msg = err.response?.data?.message || 'Failed to create clinic. Make sure the license number is unique.';
+                      alert(msg);
+                    }
+                  }}
+                  style={{ background: '#1a73e8', color: '#fff', border: 'none', padding: '16px 32px', borderRadius: '16px', fontWeight: '700', marginTop: '32px', cursor: 'pointer', width: '100%' }}
+                >
+                  Register Clinic
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -149,9 +266,9 @@ export default function ClinicDashboard() {
               <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ position: 'relative' }}>
                   <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                  <input 
-                    placeholder="Search patient..." 
-                    style={{ padding: '10px 12px 10px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '14px', width: '240px' }} 
+                  <input
+                    placeholder="Search patient..."
+                    style={{ padding: '10px 12px 10px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '14px', width: '240px' }}
                   />
                 </div>
                 <button style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}>
@@ -197,7 +314,7 @@ export default function ClinicDashboard() {
                         </div>
                       </td>
                       <td style={tableCellStyle}>
-                        <span style={{ 
+                        <span style={{
                           padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'capitalize',
                           background: getStatusColor(apt.status).bg,
                           color: getStatusColor(apt.status).text
@@ -208,7 +325,7 @@ export default function ClinicDashboard() {
                       <td style={tableCellStyle}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           {apt.status === 'pending' && (
-                            <button 
+                            <button
                               onClick={() => handleUpdateStatus(apt._id, 'confirm')}
                               style={actionButtonStyle('#22c55e')}
                             >
@@ -216,7 +333,7 @@ export default function ClinicDashboard() {
                             </button>
                           )}
                           {apt.status === 'confirmed' && (
-                            <button 
+                            <button
                               onClick={() => handleUpdateStatus(apt._id, 'complete')}
                               style={actionButtonStyle('#1a73e8')}
                             >
@@ -224,7 +341,7 @@ export default function ClinicDashboard() {
                             </button>
                           )}
                           {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                            <button 
+                            <button
                               onClick={() => handleUpdateStatus(apt._id, 'cancel')}
                               style={actionButtonStyle('#ef4444')}
                             >
@@ -245,11 +362,11 @@ export default function ClinicDashboard() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
               <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>Manage Doctors</h2>
-              <button 
+              <button
                 onClick={() => setIsAddDoctorOpen(true)}
-                style={{ 
-                  background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 24px', 
-                  borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' 
+                style={{
+                  background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 24px',
+                  borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'
                 }}
               >
                 <Plus size={20} /> Add New Doctor
@@ -278,11 +395,11 @@ export default function ClinicDashboard() {
           <div style={{ maxWidth: '800px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
               <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>Clinic Settings</h2>
-              <button 
+              <button
                 onClick={handleUpdateClinic}
-                style={{ 
-                  background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 32px', 
-                  borderRadius: '12px', fontWeight: '600', cursor: 'pointer' 
+                style={{
+                  background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 32px',
+                  borderRadius: '12px', fontWeight: '600', cursor: 'pointer'
                 }}
               >
                 Save Changes
@@ -295,15 +412,15 @@ export default function ClinicDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>Clinic Name</label>
-                    <input value={clinicForm.name} onChange={e => setClinicForm({...clinicForm, name: e.target.value})} style={settingsInputStyle} />
+                    <input value={clinicForm.name} onChange={e => setClinicForm({ ...clinicForm, name: e.target.value })} style={settingsInputStyle} />
                   </div>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>Email Address</label>
-                    <input value={clinicForm.email} onChange={e => setClinicForm({...clinicForm, email: e.target.value})} style={settingsInputStyle} />
+                    <input value={clinicForm.email} onChange={e => setClinicForm({ ...clinicForm, email: e.target.value })} style={settingsInputStyle} />
                   </div>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>Phone Number</label>
-                    <input value={clinicForm.phone} onChange={e => setClinicForm({...clinicForm, phone: e.target.value})} style={settingsInputStyle} />
+                    <input value={clinicForm.phone} onChange={e => setClinicForm({ ...clinicForm, phone: e.target.value })} style={settingsInputStyle} />
                   </div>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>License Number</label>
@@ -312,7 +429,7 @@ export default function ClinicDashboard() {
                 </div>
                 <div style={{ ...inputGroupStyle, marginTop: '20px' }}>
                   <label style={labelStyle}>Description</label>
-                  <textarea value={clinicForm.description} onChange={e => setClinicForm({...clinicForm, description: e.target.value})} rows="4" style={{ ...settingsInputStyle, resize: 'none' }} />
+                  <textarea value={clinicForm.description} onChange={e => setClinicForm({ ...clinicForm, description: e.target.value })} rows="4" style={{ ...settingsInputStyle, resize: 'none' }} />
                 </div>
               </div>
 
@@ -321,11 +438,11 @@ export default function ClinicDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>Street Address</label>
-                    <input value={clinicForm.address.street} onChange={e => setClinicForm({...clinicForm, address: {...clinicForm.address, street: e.target.value}})} style={settingsInputStyle} />
+                    <input value={clinicForm.address.street} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, street: e.target.value } })} style={settingsInputStyle} />
                   </div>
                   <div style={inputGroupStyle}>
                     <label style={labelStyle}>City</label>
-                    <input value={clinicForm.address.city} onChange={e => setClinicForm({...clinicForm, address: {...clinicForm.address, city: e.target.value}})} style={settingsInputStyle} />
+                    <input value={clinicForm.address.city} onChange={e => setClinicForm({ ...clinicForm, address: { ...clinicForm.address, city: e.target.value } })} style={settingsInputStyle} />
                   </div>
                 </div>
               </div>
@@ -353,9 +470,9 @@ export default function ClinicDashboard() {
       </div>
 
       {isAddDoctorOpen && (
-        <AddDoctorModal 
+        <AddDoctorModal
           specialties={specialtiesList}
-          onClose={() => setIsAddDoctorOpen(false)} 
+          onClose={() => setIsAddDoctorOpen(false)}
           onSave={async (doctor) => {
             try {
               const res = await api.post(`/api/clinics/${clinic._id}/doctors`, doctor);
@@ -417,16 +534,16 @@ function AddDoctorModal({ specialties, onClose, onSave }) {
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '24px' }}>Add New Doctor</h2>
         <div style={{ display: 'grid', gap: '16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <input placeholder="First Name" style={modalInputStyle} onChange={e => setForm({...form, firstName: e.target.value})} />
-            <input placeholder="Last Name" style={modalInputStyle} onChange={e => setForm({...form, lastName: e.target.value})} />
+            <input placeholder="First Name" style={modalInputStyle} onChange={e => setForm({ ...form, firstName: e.target.value })} />
+            <input placeholder="Last Name" style={modalInputStyle} onChange={e => setForm({ ...form, lastName: e.target.value })} />
           </div>
-          <input placeholder="Email" type="email" style={modalInputStyle} onChange={e => setForm({...form, email: e.target.value})} />
-          <input placeholder="Password" type="password" style={modalInputStyle} onChange={e => setForm({...form, password: e.target.value})} />
-          <select style={modalInputStyle} onChange={e => setForm({...form, specialty: e.target.value})}>
+          <input placeholder="Email" type="email" style={modalInputStyle} onChange={e => setForm({ ...form, email: e.target.value })} />
+          <input placeholder="Password" type="password" style={modalInputStyle} onChange={e => setForm({ ...form, password: e.target.value })} />
+          <select style={modalInputStyle} onChange={e => setForm({ ...form, specialty: e.target.value })}>
             <option value="">Select Specialty</option>
             {specialties.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <input placeholder="License Number" style={modalInputStyle} onChange={e => setForm({...form, licenseNumber: e.target.value})} />
+          <input placeholder="License Number" style={modalInputStyle} onChange={e => setForm({ ...form, licenseNumber: e.target.value })} />
           <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
             <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer' }}>Cancel</button>
             <button onClick={() => onSave(form)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: '#1a73e8', color: '#fff', fontWeight: '600', cursor: 'pointer' }}>Add Doctor</button>

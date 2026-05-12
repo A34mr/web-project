@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 export default function ClinicDetails({ onBack, onContinue, submitting }){
-  const [data, setData] = useState({ name:'', email:'', phone:'', address:'', password:'', confirmPassword:'' })
+  const [data, setData] = useState({ name:'', email:'', phone:'', address:'', license: '', password:'', confirmPassword:'' })
   const change = (k) => (e) => setData({...data, [k]: e.target.value})
   const submit = (e) => { e.preventDefault(); onContinue(data) }
 
@@ -20,6 +20,9 @@ export default function ClinicDetails({ onBack, onContinue, submitting }){
 
       <label>Address</label>
       <input value={data.address} onChange={change('address')} placeholder="Address" />
+      
+      <label>License Number</label>
+      <input value={data.license} onChange={change('license')} placeholder="e.g. LIC-12345" />
 
       <label>Password</label>
       <input type="password" value={data.password} onChange={change('password')} placeholder="Password" />

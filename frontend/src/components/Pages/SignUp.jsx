@@ -103,7 +103,18 @@ export default function SignUp() {
         chronic: form.chronic,
         allergies: form.allergies,
         dentalIssues: form.dentalIssues,
-        emergency: form.emergency
+        emergency: form.emergency,
+        // Doctor fields
+        specialty: form.specialty,
+        experience: form.experience,
+        license: form.license,
+        price: form.price,
+        // Clinic fields
+        clinicName: form.clinicName,
+        address: form.address,
+        city: form.city,
+        mapsLink: form.mapsLink,
+        workingHours: form.workingHours
       };
       
       await register(userData);
@@ -292,6 +303,7 @@ export default function SignUp() {
                 {field("Clinic Name", "clinicName")}
                 {field("Address", "address")}
                 {field("City", "city")}
+                {field("Medical License Number", "license")}
                 {field("Google Maps Location Link", "mapsLink", "url", "https://maps.google.com/...")}
                 {field("Working Hours", "workingHours", "text", "e.g. 9AM - 6PM")}
                 {field("Max Number of Doctors", "maxDoctors", "number")}

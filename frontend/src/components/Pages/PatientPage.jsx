@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from "../../services/api";
-import { Calendar, Clock, MapPin, FileText, Download, AlertCircle, CreditCard, ChevronLeft, User, Phone, Mail } from 'lucide-react';
+import { Calendar, Clock, MapPin, FileText, Download, AlertCircle, CreditCard, ChevronLeft, User, Phone, Mail, Sparkles } from 'lucide-react';
 import EditProfileModal from "./EditProfileModal";
 
 export default function PatientPage() {
