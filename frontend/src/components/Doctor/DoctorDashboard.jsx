@@ -13,8 +13,9 @@ export default function DoctorDashboard() {
   const [showAddSlot, setShowAddSlot] = useState(false)
   const [newSlot, setNewSlot] = useState({
     dateTime: '',
-    reason: 'General Checkup',
-    duration: 30
+    serviceType: 'General Checkup',
+    duration: 30,
+    capacity: 1
   })
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export default function DoctorDashboard() {
   const fetchAppointments = async () => {
     try {
       setLoading(true)
-      const response = await api.get('/api/appointments/my-appointments') // Need to check if doctor has different endpoint
+      const response = await api.get('/api/appointments/doctor-appointments') // Need to check if doctor has different endpoint
       if (response.data.success) {
         setAppointments(response.data.appointments)
       }
@@ -46,10 +47,30 @@ export default function DoctorDashboard() {
 
   const handleAddSlot = async (e) => {
     e.preventDefault()
-    // This would normally call an endpoint to create an available slot
-    // For now, we'll simulate or use the existing booking endpoint if applicable
-    alert('Slot added successfully!')
-    setShowAddSlot(false)
+    if (!user || !user.doctorProfileId) {
+      alert('Doctor profile not found. Please complete your registration.')
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await api.post('/api/slots', {
+        clinicId: user.clinicId || user.clinic, // Fallback if nested
+        doctorId: user.doctorProfileId,
+        ...newSlot
+      })
+
+      if (response.data.success) {
+        alert('Slot added successfully!')
+        setShowAddSlot(false)
+        setNewSlot({ dateTime: '', serviceType: 'General Checkup', duration: 30, capacity: 1 })
+      }
+    } catch (error) {
+      console.error('Add slot error:', error)
+      alert(error.response?.data?.message || 'Failed to add slot')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading dashboard...</div>

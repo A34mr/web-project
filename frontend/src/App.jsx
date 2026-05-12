@@ -127,6 +127,9 @@ export default function App() {
               } 
             />
             
+            <Route path="/search" element={<ClinicSearch />} />
+            <Route path="/clinic/:id" element={<ClinicDetails />} />
+            
             {/* 404 Route */}
             <Route path="*" element={<div>404 - Page Not Found</div>} />
           </Routes>

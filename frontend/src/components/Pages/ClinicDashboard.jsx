@@ -22,6 +22,8 @@ export default function ClinicDashboard() {
     name: '', email: '', phone: '', licenseNumber: '', description: '',
     address: { street: '', city: '', state: '', zipCode: '', country: '' }
   });
+  const [selectedPatientProfile, setSelectedPatientProfile] = useState(null);
+  const [viewingHistory, setViewingHistory] = useState(false);
 
   const specialtiesList = ['General Dentist', 'Orthodontist', 'Oral Surgeon', 'Pediatric Dentist', 'Periodontist', 'Endodontist', 'Prosthodontist'];
 
@@ -89,6 +91,21 @@ export default function ClinicDashboard() {
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update status');
+    }
+  };
+
+  const handleViewPatientHistory = async (patientId) => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/api/clinics/patient/${patientId}/profile`);
+      if (res.data.success) {
+        setSelectedPatientProfile(res.data.profile);
+        setViewingHistory(true);
+      }
+    } catch (err) {
+      alert('Failed to fetch patient profile');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -348,6 +365,12 @@ export default function ClinicDashboard() {
                               Cancel
                             </button>
                           )}
+                          <button
+                            onClick={() => handleViewPatientHistory(apt.patient?._id)}
+                            style={actionButtonStyle('#8b5cf6')}
+                          >
+                            History
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -487,6 +510,16 @@ export default function ClinicDashboard() {
           }}
         />
       )}
+
+      {viewingHistory && selectedPatientProfile && (
+        <PatientHistoryModal
+          profile={selectedPatientProfile}
+          onClose={() => {
+            setViewingHistory(false);
+            setSelectedPatientProfile(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -522,6 +555,77 @@ function InfoItem({ icon, label, value }) {
         <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
         <div style={{ fontSize: '15px', color: '#1e293b', fontWeight: '500' }}>{value || 'Not set'}</div>
       </div>
+    </div>
+  );
+}
+
+function PatientHistoryModal({ profile, onClose }) {
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, backdropFilter: 'blur(4px)' }}>
+      <div style={{ background: '#fff', padding: '40px', borderRadius: '32px', width: '600px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '32px' }}>
+          <div>
+            <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1e293b', marginBottom: '4px' }}>Patient History</h2>
+            <p style={{ color: '#64748b', fontSize: '16px' }}>{profile.user?.firstName} {profile.user?.lastName}</p>
+          </div>
+          <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}>✕</button>
+        </div>
+
+        <div style={{ display: 'grid', gap: '32px' }}>
+          <section>
+            <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a73e8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Medical Profile</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', background: '#f8fafc', padding: '24px', borderRadius: '20px' }}>
+              <ProfileItem label="Gender" value={profile.gender} />
+              <ProfileItem label="Date of Birth" value={new Date(profile.dob).toLocaleDateString()} />
+              <ProfileItem label="Allergies" value={profile.allergies || 'None'} />
+              <ProfileItem label="Chronic Diseases" value={profile.chronic || 'None'} />
+            </div>
+          </section>
+
+          <section>
+            <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a73e8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Dental History</h3>
+            <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '20px' }}>
+              <p style={{ color: '#334155', fontSize: '15px', lineHeight: '1.6' }}>{profile.dentalIssues || 'No previous dental issues recorded.'}</p>
+            </div>
+          </section>
+
+          {profile.medicalHistory?.length > 0 && (
+            <section>
+              <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a73e8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Treatment Records</h3>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {profile.medicalHistory.map((h, i) => (
+                  <div key={i} style={{ padding: '16px', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#1e293b' }}>{h.diagnosis}</div>
+                      <div style={{ fontSize: '13px', color: '#64748b' }}>{h.treatment}</div>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>{new Date(h.date).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a73e8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Emergency Contact</h3>
+            <div style={{ background: '#fef2f2', padding: '20px', borderRadius: '16px', border: '1px solid #fee2e2' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#dc2626' }}>
+                <Phone size={18} />
+                <span style={{ fontWeight: '600' }}>{profile.emergency || 'Not provided'}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileItem({ label, value }) {
+  return (
+    <div>
+      <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>{value || 'N/A'}</div>
     </div>
   );
 }

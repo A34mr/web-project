@@ -59,15 +59,15 @@ export default function ClinicSearch() {
       </header>
 
       {/* Filters Section */}
-      <section style={{ 
-        background: '#fff', padding: '24px', borderRadius: '16px', 
+      <section style={{
+        background: '#fff', padding: '24px', borderRadius: '16px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '40px'
       }}>
         <form onSubmit={handleSearch} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#4a5568' }}>Search Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="search"
               placeholder="Clinic name..."
               value={filters.search}
@@ -77,8 +77,8 @@ export default function ClinicSearch() {
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#4a5568' }}>City</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               name="city"
               placeholder="e.g. New York"
               value={filters.city}
@@ -88,7 +88,7 @@ export default function ClinicSearch() {
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#4a5568' }}>Specialty</label>
-            <select 
+            <select
               name="specialty"
               value={filters.specialty}
               onChange={handleFilterChange}
@@ -101,8 +101,8 @@ export default function ClinicSearch() {
               <option value="Pediatric Dentist">Pediatric Dentist</option>
             </select>
           </div>
-          <button type="submit" style={{ 
-            background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 24px', 
+          <button type="submit" style={{
+            background: '#1a73e8', color: '#fff', border: 'none', padding: '12px 24px',
             borderRadius: '8px', fontWeight: '600', cursor: 'pointer', height: '48px'
           }}>
             Search Now
@@ -116,8 +116,8 @@ export default function ClinicSearch() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
           {clinics.length > 0 ? clinics.map(clinic => (
-            <div key={clinic._id} style={{ 
-              background: '#fff', borderRadius: '16px', overflow: 'hidden', 
+            <div key={clinic._id} style={{
+              background: '#fff', borderRadius: '16px', overflow: 'hidden',
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0',
               transition: 'transform 0.2s'
             }}
@@ -125,13 +125,13 @@ export default function ClinicSearch() {
               onMouseLeave={e => e.currentTarget.style.transform = ''}
             >
               <div style={{ height: '180px', background: '#e2e8f0', position: 'relative' }}>
-                <img 
-                  src={clinic.images && clinic.images[0] ? clinic.images[0] : 'https://images.unsplash.com/photo-1629909615184-74f495363b67?w=400&q=80'} 
-                  alt={clinic.name} 
+                <img
+                  src={clinic.images && clinic.images[0] ? clinic.images[0] : 'https://images.unsplash.com/photo-1629909615184-74f495363b67?w=400&q=80'}
+                  alt={clinic.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <div style={{ 
-                  position: 'absolute', top: '12px', right: '12px', 
+                <div style={{
+                  position: 'absolute', top: '12px', right: '12px',
                   background: 'rgba(255,255,255,0.9)', padding: '4px 8px', borderRadius: '4px',
                   fontSize: '12px', fontWeight: '700', color: '#1a73e8'
                 }}>
@@ -145,14 +145,14 @@ export default function ClinicSearch() {
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '20px' }}>
                   {clinic.specialties.slice(0, 3).map(s => (
-                    <span key={s} style={{ 
-                      fontSize: '11px', background: '#f0f6ff', color: '#1a73e8', 
-                      padding: '2px 8px', borderRadius: '100px', fontWeight: '500' 
+                    <span key={s} style={{
+                      fontSize: '11px', background: '#f0f6ff', color: '#1a73e8',
+                      padding: '2px 8px', borderRadius: '100px', fontWeight: '500'
                     }}>{s}</span>
                   ))}
                 </div>
-                <Link to={`/clinic/${clinic._id}`} style={{ 
-                  display: 'block', textAlign: 'center', background: '#f0f6ff', color: '#1a73e8', 
+                <Link to={`/clinic/${clinic._id}`} style={{
+                  display: 'block', textAlign: 'center', background: '#f0f6ff', color: '#1a73e8',
                   textDecoration: 'none', padding: '10px', borderRadius: '8px', fontWeight: '600',
                   transition: 'background 0.2s'
                 }}

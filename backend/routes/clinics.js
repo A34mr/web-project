@@ -417,4 +417,17 @@ router.delete('/:id', authMiddleware, roleCheck('admin'), async (req, res) => {
   }
 });
 
+// Get patient profile for clinic viewing
+router.get('/patient/:id/profile', authMiddleware, roleCheck('clinic_admin', 'doctor', 'admin'), async (req, res) => {
+  try {
+    const PatientProfile = require('../models/PatientProfile');
+    const profile = await PatientProfile.findOne({ user: req.params.id }).populate('user', 'firstName lastName email phone');
+    if (!profile) return res.status(404).json({ success: false, message: 'Profile not found' });
+    res.json({ success: true, profile });
+  } catch (error) {
+    console.error('Fetch patient profile error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;

@@ -118,6 +118,24 @@ router.get('/my-appointments', authMiddleware, roleCheck('patient'), async (req,
   }
 });
 
+// Get doctor's appointments
+router.get('/doctor-appointments', authMiddleware, roleCheck('doctor'), async (req, res) => {
+  try {
+    const DoctorProfile = require('../models/DoctorProfile');
+    const doctorProfile = await DoctorProfile.findOne({ user: req.userId });
+    if (!doctorProfile) return res.status(404).json({ success: false, message: 'Doctor profile not found' });
+
+    const appointments = await Appointment.find({ doctor: doctorProfile._id })
+      .populate('patient', 'firstName lastName email phone')
+      .populate('clinic', 'name address')
+      .sort({ dateTime: 1 });
+
+    res.json({ success: true, appointments });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch doctor appointments' });
+  }
+});
+
 // Get clinic's appointments
 router.get('/clinic/:clinicId', authMiddleware, async (req, res) => {
   try {

@@ -124,6 +124,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/slots', require('./routes/slots'));
 
 // AI Analysis endpoint (direct)
 app.post('/api/ai/analyze', async (req, res) => {

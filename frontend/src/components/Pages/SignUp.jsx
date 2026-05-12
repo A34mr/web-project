@@ -60,7 +60,6 @@ export default function SignUp() {
       if (!form.specialty) errs.specialty = "Required";
       if (!form.experience) errs.experience = "Required";
       if (!form.license?.trim()) errs.license = "Required";
-      if (!form.price) errs.price = "Required";
     }
     
     if (type === "clinic") {
@@ -250,10 +249,10 @@ export default function SignUp() {
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Gender</label>
                   <select value={form.gender || ""} onChange={e => set("gender", e.target.value)} style={inputStyle(errors.gender)}>
-                    {errors.gender && <p style={{ color:"#e53935", fontSize:12, marginTop:3 }}>Required</p>}
                     <option value="">Select gender</option>
                     <option>Male</option><option>Female</option>
                   </select>
+                  {errors.gender && <p style={{ color:"#e53935", fontSize:12, marginTop:3 }}>Required</p>}
                 </div>
                 {field("Chronic Diseases", "chronic", "text", "e.g. Diabetes, Hypertension")}
                 {field("Allergies", "allergies", "text", "e.g. Penicillin")}
@@ -265,17 +264,19 @@ export default function SignUp() {
               {type === "doctor" && <>
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Gender</label>
-                  <select value={form.gender || ""} onChange={e => set("gender", e.target.value)} style={inputStyle(false)}>
+                  <select value={form.gender || ""} onChange={e => set("gender", e.target.value)} style={inputStyle(errors.gender)}>
                     <option value="">Select gender</option>
                     <option>Male</option><option>Female</option>
                   </select>
+                  {errors.gender && <p style={{ color: "#e53935", fontSize: 12, marginTop: 3 }}>{errors.gender}</p>}
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Specialty</label>
-                  <select value={form.specialty || ""} onChange={e => set("specialty", e.target.value)} style={inputStyle(false)}>
+                  <select value={form.specialty || ""} onChange={e => set("specialty", e.target.value)} style={inputStyle(errors.specialty)}>
                     <option value="">Select specialty</option>
                     {specialties.map(s => <option key={s}>{s}</option>)}
                   </select>
+                  {errors.specialty && <p style={{ color: "#e53935", fontSize: 12, marginTop: 3 }}>{errors.specialty}</p>}
                 </div>
                 {field("Years of Experience", "experience", "number")}
                 {field("Medical License Number", "license")}

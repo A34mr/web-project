@@ -121,15 +121,19 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Notify server to blacklist tokens
       const refreshToken = getRefreshToken();
-      await api.post('/api/auth/logout', { refreshToken });
+      const accessToken = localStorage.getItem('token');
+      // Only notify server if we appear to have an active session
+      if (accessToken || refreshToken) {
+        await api.post('/api/auth/logout', { refreshToken });
+      }
     } catch (err) {
-      // Continue with local logout even if server call fails
+      // Silent catch: We're logging out anyway
+    } finally {
+      clearTokens();
+      delete api.defaults.headers.common.Authorization;
+      setUser(null);
     }
-    clearTokens();
-    delete api.defaults.headers.common.Authorization;
-    setUser(null);
   };
 
   const updateUser = (updatedUser) => {

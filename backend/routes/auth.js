@@ -95,9 +95,9 @@ router.post('/register', async (req, res) => {
       await DoctorProfile.create({
         user: user._id,
         specialty: specialty || 'General Dentist',
-        experience: experience || 0,
+        yearsOfExperience: experience || 0,
         licenseNumber: license || 'PENDING',
-        status: 'pending'
+        isVerified: false
       });
     }
 
