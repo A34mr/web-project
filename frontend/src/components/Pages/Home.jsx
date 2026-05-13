@@ -26,7 +26,7 @@ const SERVICES = [
     title: "Cosmetic Dentistry",
     desc: "Transform your smile with our comprehensive cosmetic treatments including veneers, bonding, and smile makeovers.",
     points: ["Smile makeover", "Veneers", "Aesthetic results"],
-    img: "https://images.unsplash.com/photo-1588776814546-1ffedbe8eba5?w=400&q=80",
+    img: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=400&q=80",
   },
   {
     title: "Teeth Whitening",

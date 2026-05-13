@@ -13,6 +13,8 @@ export default function PatientPage() {
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(null);
+  const [reports, setReports] = useState([]);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -34,6 +36,15 @@ export default function PatientPage() {
         });
       }
       if (appointmentsRes.data.success) setAppointments(appointmentsRes.data.appointments);
+
+      // Fetch reports and images
+      const [reportsRes, imagesRes] = await Promise.all([
+        api.get('/api/reports/my-reports'),
+        api.get('/api/images/my-images')
+      ]);
+
+      if (reportsRes.data.success) setReports(reportsRes.data.reports);
+      if (imagesRes.data.success) setImages(imagesRes.data.images);
     } catch (error) {
       console.error('Fetch patient data error:', error);
     } finally {
@@ -270,10 +281,74 @@ export default function PatientPage() {
 
         {/* Documents Tab */}
         {activeTab === 'documents' && (
-          <div style={{ background: '#fff', padding: '40px', borderRadius: '24px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-            <FileText size={48} color="#e2e8f0" style={{ marginBottom: '16px' }} />
-            <h3 style={{ color: '#1a1a2e', marginBottom: '8px' }}>Dental Records & X-Rays</h3>
-            <p style={{ color: '#64748b' }}>This feature is coming soon. Your doctor will be able to upload your records here.</p>
+          <div style={{ display: 'grid', gap: '32px' }}>
+            {/* Reports Section */}
+            <section>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileText size={20} color="#1a73e8" /> Medical Reports
+              </h3>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {reports.length > 0 ? reports.map(report => (
+                  <div key={report._id} style={{
+                    background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                  }}>
+                    <div>
+                      <h4 style={{ fontWeight: '700', color: '#1a1a2e' }}>{report.diagnosis}</h4>
+                      <p style={{ fontSize: '13px', color: '#64748b' }}>
+                        {report.clinic?.name} | {new Date(report.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <a 
+                      href={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/api/reports/${report._id}/pdf`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        background: '#f0f6ff', color: '#1a73e8', textDecoration: 'none',
+                        padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+                        display: 'flex', alignItems: 'center', gap: '6px'
+                      }}
+                    >
+                      <Download size={14} /> PDF
+                    </a>
+                  </div>
+                )) : (
+                  <div style={{ background: '#fff', padding: '20px', borderRadius: '16px', color: '#64748b', textAlign: 'center' }}>
+                    No reports found.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Images Section */}
+            <section>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1a1a2e', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={20} color="#1a73e8" /> X-Rays & Imaging
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                {images.length > 0 ? images.map(img => (
+                  <div key={img._id} style={{
+                    background: '#fff', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0'
+                  }}>
+                    <div style={{ height: '140px', background: '#f8fafc' }}>
+                      <img 
+                        src={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}${img.imageUrl}`} 
+                        alt={img.imageType}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                    <div style={{ padding: '12px' }}>
+                      <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>{img.imageType}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>{new Date(img.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                )) : (
+                  <div style={{ gridColumn: '1/-1', background: '#fff', padding: '20px', borderRadius: '16px', color: '#64748b', textAlign: 'center' }}>
+                    No images found.
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         )}
 

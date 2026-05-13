@@ -62,7 +62,10 @@ router.get('/', async (req, res) => {
     }
     
     if (search) {
-      query.$text = { $search: search };
+      query.$or = [
+        { name: new RegExp(search, 'i') },
+        { description: new RegExp(search, 'i') }
+      ];
     }
 
     const clinics = await Clinic.find(query)

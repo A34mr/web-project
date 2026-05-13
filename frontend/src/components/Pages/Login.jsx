@@ -71,8 +71,8 @@ export default function Login() {
             "Your smile, our responsibility."
           </div>
           <img
-            src="/dentist.jpg"
-            alt="Smiling dentist"
+            src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=600&q=80"
+            alt="Dental clinic"
             style={{ width:"100%", height:"350px", objectFit:"cover", borderRadius:20, boxShadow:"0 8px 32px rgba(0,0,0,0.18)", marginTop:24 }}
           />
         </div>

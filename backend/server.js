@@ -106,10 +106,18 @@ app.use('/uploads', express.static(uploadsDir));
 // ── FIX #2: MongoDB Connection - Do NOT log credentials ──
 const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dentai';
 mongoose.connect(mongoUri)
-  .then(() => {
+  .then(async () => {
     // Log connection success WITHOUT exposing the full URI (contains credentials)
     const dbName = mongoUri.split('/').pop()?.split('?')[0] || 'database';
     console.log('MongoDB Connected Successfully to:', dbName);
+    
+    // Auto-seed requested clinics, doctors, and slots
+    try {
+      const syncMockData = require('./services/mockDataSync');
+      await syncMockData();
+    } catch (seedError) {
+      console.error('Error auto-seeding data:', seedError.message);
+    }
   })
   .catch((err) => console.error('MongoDB Connection Error:', err.message));
 
